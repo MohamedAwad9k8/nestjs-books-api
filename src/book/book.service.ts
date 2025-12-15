@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Book } from './schemas/book.schema';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { CreateBookDto } from './dto/create-book.dto';
-
+import { SearchQueryDto } from './dto/search-query.dto';
 @Injectable()
 export class BookService {
     constructor(
@@ -12,8 +12,21 @@ export class BookService {
         private bookModel: Model<Book>
     ) {}
 
-    async findAll(): Promise<Book[]>{
-        const books = await this.bookModel.find();
+    async findAll(query: SearchQueryDto): Promise<Book[]>{
+        const resPerPage = 2;
+        const currentPage = Number(query.page) || 1;
+        const skip = resPerPage * (currentPage - 1);
+        const keyword = query.keyword ? {
+            title: {
+                $regex: query.keyword,
+                $options: 'i'
+            }
+        } : {};
+
+        const books = await this.bookModel
+         .find({ ...keyword })
+         .limit(resPerPage)
+         .skip(skip);
         return books;
     }
 
