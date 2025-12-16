@@ -5,10 +5,11 @@ import { Book } from './schemas/book.schema';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
+import { BOOK_SCHEMA_NAME } from './book.constants';
 @Injectable()
 export class BookService {
     constructor(
-        @InjectModel(Book.name) 
+        @InjectModel(BOOK_SCHEMA_NAME) 
         private bookModel: Model<Book>
     ) {}
 
