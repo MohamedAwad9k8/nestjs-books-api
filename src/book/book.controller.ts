@@ -17,7 +17,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { MongoIDValidationPipe } from './pipes/mongo-id-validation.pipe';
 @Controller('books')
-export class BooksController {
+export class BookController {
     constructor(private readonly bookService: BookService) {}
     @Get()
     async getAllBooks(@Query() query: SearchQueryDto): Promise<Book[]> {
