@@ -9,7 +9,8 @@ import {
     HttpStatus, 
     HttpCode, 
     Query,
-    UseGuards
+    UseGuards,
+    Req
 } from '@nestjs/common';
 import { BookService} from './book.service';
 import { Book } from './schemas/book.schema';
@@ -18,33 +19,50 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { MongoIDValidationPipe } from './pipes/mongo-id-validation.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { Role } from 'src/auth/enums/roles.enum';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+
 @Controller('books')
 export class BookController {
     constructor(private readonly bookService: BookService) {}
+    
     @Get()
+    @Roles(Role.USER)
+    @UseGuards(AuthGuard(), RolesGuard)
     async getAllBooks(@Query() query: SearchQueryDto): Promise<Book[]> {
         return this.bookService.findAll(query);
     }
 
     @Post()
-    @UseGuards(AuthGuard())
-    async createBook(@Body() book: CreateBookDto): Promise<Book> {
-        return this.bookService.create(book);
+    @Roles(Role.ADMIN, Role.MODERATOR)
+    @UseGuards(AuthGuard(), RolesGuard)
+    async createBook(
+        @Body() 
+        book: CreateBookDto,
+        @Req()
+        req,
+    ): Promise<Book> {
+        return this.bookService.create(book, req.user);
     }
 
     @Get(':id')
+    @Roles(Role.USER)
+    @UseGuards(AuthGuard(), RolesGuard)
     async getBook(@Param('id', MongoIDValidationPipe) id: string): Promise<Book> {
         return this.bookService.findById(id);
     }
 
     @Put(':id')
-    @UseGuards(AuthGuard())
+    @Roles(Role.ADMIN, Role.MODERATOR)
+    @UseGuards(AuthGuard(), RolesGuard)
     async updateBook(@Param('id', MongoIDValidationPipe) id: string, @Body() book: UpdateBookDto): Promise<Book> {
         return this.bookService.updateById(id, book);
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard())
+    @Roles(Role.ADMIN)
+    @UseGuards(AuthGuard(), RolesGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteBook(@Param('id', MongoIDValidationPipe) id: string): Promise<void> {
         return this.bookService.deleteById(id);

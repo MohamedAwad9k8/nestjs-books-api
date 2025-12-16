@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
@@ -15,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService) {}
 
     async signUp(userData: SignUpDto): Promise<{token: string}> {
-        const { email, name, password } = userData;
+        const { email, name, password, roles } = userData;
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -24,6 +24,7 @@ export class AuthService {
             email,
             name,
             password: hashedPassword,
+            roles,
             });
             const token = this.jwtService.sign({ id: user._id, email: user.email });
             return {token};
@@ -38,7 +39,9 @@ export class AuthService {
     async login(loginData: LoginDto): Promise<{token: string}> {
         const { email, password } = loginData;
 
-        const user = await this.userModel.findOne({ email });
+        const user = await this.userModel
+        .findOne({ email })
+        .select('+password');
 
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
@@ -52,5 +55,20 @@ export class AuthService {
 
         const token = this.jwtService.sign({ id: user._id, email: user.email });
         return {token};
+    }
+
+
+    async getAllUsers(): Promise<User[]> {
+        return this.userModel.find();
+    }
+
+
+    async deleteById(id: string): Promise<void>{
+            
+        const res = await this.userModel.findByIdAndDelete(id);
+        if (!res) {
+            throw new NotFoundException('User not found');
+        } 
+        
     }
 }

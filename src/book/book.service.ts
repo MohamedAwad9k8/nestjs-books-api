@@ -6,6 +6,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { BOOK_SCHEMA_NAME } from './book.constants';
+import { User } from 'src/auth/schemas/user.schema';
 @Injectable()
 export class BookService {
     constructor(
@@ -31,8 +32,9 @@ export class BookService {
         return books;
     }
 
-    async create(book: CreateBookDto): Promise<Book> {
-        const res = await this.bookModel.create(book);
+    async create(book: CreateBookDto, user: User): Promise<Book> {
+        const data = Object.assign(book, {user: user._id});
+        const res = await this.bookModel.create(data);
         return res;
     }
 
