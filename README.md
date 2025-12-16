@@ -1,3 +1,8 @@
+# nestjs-books-api
+
+A RESTful API built with NestJS for managing a single resource (Books), featuring CRUD operations, search, pagination, MongoDB integration, and JWT-based authentication and authorization.
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
