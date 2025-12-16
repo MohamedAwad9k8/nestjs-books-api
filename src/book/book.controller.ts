@@ -15,7 +15,7 @@ import { Book } from './schemas/book.schema';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
-
+import { MongoIDValidationPipe } from './pipes/mongo-id-validation.pipe';
 @Controller('books')
 export class BooksController {
     constructor(private readonly bookService: BookService) {}
@@ -30,18 +30,18 @@ export class BooksController {
     }
 
     @Get(':id')
-    async getBook(@Param('id') id: string): Promise<Book> {
+    async getBook(@Param('id', MongoIDValidationPipe) id: string): Promise<Book> {
         return this.bookService.findById(id);
     }
 
     @Put(':id')
-    async updateBook(@Param('id') id: string, @Body() book: UpdateBookDto): Promise<Book> {
+    async updateBook(@Param('id', MongoIDValidationPipe) id: string, @Body() book: UpdateBookDto): Promise<Book> {
         return this.bookService.updateById(id, book);
     }
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteBook(@Param('id') id: string): Promise<void> {
+    async deleteBook(@Param('id', MongoIDValidationPipe) id: string): Promise<void> {
         return this.bookService.deleteById(id);
     }
 }

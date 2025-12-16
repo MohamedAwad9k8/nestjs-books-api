@@ -13,8 +13,8 @@ export class BookService {
     ) {}
 
     async findAll(query: SearchQueryDto): Promise<Book[]>{
-        const resPerPage = 2;
-        const currentPage = Number(query.page) || 1;
+        const resPerPage = query.perPage || 2;
+        const currentPage = query.page || 1;
         const skip = resPerPage * (currentPage - 1);
         const keyword = query.keyword ? {
             title: {
